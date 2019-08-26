@@ -1,3 +1,4 @@
-# Webbie - A Common WebServer Framework for different your application
+# Webbie - A microservice based framework for various applications.
 
-This framework can be integrated with different application as per the user demands.
+This framework is designed using NodeJs, Express and MongoDb and can be integrated with different application as per the user demands.
+
