@@ -21,7 +21,6 @@ app.use(helmet());
 
 app.use('/',home);
 app.use('/api/books/', books);
-//app.set('view engine','pug');
 
 if(app.get('env') === 'development'){
     app.use(log_http('tiny'));
