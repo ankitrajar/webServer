@@ -1,69 +1,114 @@
+const log_startup = require('debug')('LOG:STARTUP::');
+const log_info = require('debug')('LOG:INFO::');
 const express = require('express');
+const Joi = require('joi');
 const router = express.Router();
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/booksdB',{useNewUrlParser: true, useFindAndModify: false})
+        .then(() => log_startup('Connection to MongoDb Successfull!'))
+        .catch(err => log_startup('Connection failed! Error: ',err));
 
-const books = [
-    {id: 1, name: 'cadet'},
-    {id: 2, name: 'badge'},
-    {id: 3, name: 'comic'},
-];
+//Creating mongoose schema
+const booksSchema = new mongoose.Schema({
+    name: String,
+    author: String,
+    date: {type: Date, default: Date.now},
+    isPublished: Boolean,
+    price: Number
+});
+
+//Model the schema
+const Book = mongoose.model('Book', booksSchema);
+
+//Creating books in database
+async function createBooks(req,res){
+    const book = new Book({
+    name: req.body.name,
+    author: req.body.author,
+    isPublished: req.body.isPublishedVal,
+    price: req.body.price
+});
+const result = await book.save();
+log_info(result);
+res.send(result);
+}
+
+//Getting books from database
+async function getBooks(req,res){
+    const book = await Book
+    .find({isPublished: req.body.isPublishedVal})
+    .sort('-price')
+    .select('name author price');
+    log_info(book);
+    res.send(book);
+}
+
+//Updating books from database
+async function updateBooks(req,res){
+    const book = await Book.findById({_id: req.params.id});
+    if(!book) return res.status(404).send('Book not found!');;
+
+    book.name = req.body.name;
+    book.author = req.body.author;
+    book.isPublished = req.body.isPublishedVal;
+    book.price = req.body.price;
+
+    const result = await book.save();
+    log_info(result);
+    res.send(result);
+}
+
+async function getBookById(req,res){
+    const book = await Book.findById({_id: req.params.id});
+    if(!book) return res.status(404).send('Book not found!');
+    log_info(book);
+    res.send(book);
+}
+
+//Deleting books from database
+async function deleteBooks(req,res){
+    const result = await Book.deleteOne({_id: req.params.id});
+    log_info(result);
+    res.send(result);
+}
 
 router.get('/', (req,res) => {
-    res.send(books);
+    getBooks(req,res);
 });
 
 router.get('/:id', (req,res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if(!book) return res.status(404).send('ERROR 404! : Book not found!');
-    res.send(book);
+    getBookById(req,res);    
 });
 
 //POST Method : Create
 router.post('/', (req,res) => {
     const { error } = validateBooks(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    //Create
-    const book = {
-        id: books.length + 1,
-        name: req.body.name
-    };
-    books.push(book);
-    res.send(book);
+    //Create Books in Database
+    createBooks(req,res);
 });
 
 //PUT Method : Update
 router.put('/:id', (req,res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if(!book) return res.status(404).send('ERROR 404! : Book not found!');
-
     const { error } = validateBooks(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    // Update
-    book.name = req.body.name;
-    res.send(book);
+    //Update
+    updateBooks(req,res);
 });
 
 //DELETE Method : Delete
 router.delete('/:id', (req,res) => {
-    const book = books.find(b => b.id === parseInt(req.params.id));
-    if(!book) return res.status(404).send('ERROR 404! : Book not found!');
-
     const { error } = validateBooks(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-
-    //Delete by index
-    const index = books.indexOf(book);
-    if(req.body.name === book.name){
-        books.splice(index,1);
-    }
-    else{
-        return res.status(404).send('ERROR 404! : Book not found!');
-    }
-    res.send(book);
+    deleteBooks(req,res);
 });
 
 function validateBooks(book) {
     const schema = {
-        name: Joi.string().min(4).required()
+        name: Joi.string().required(), 
+        author: Joi.string().required(),
+        isPublished: Joi.boolean().required(),
+        price: Joi.number().required()
     };
     return Joi.validate(book,schema);
 }

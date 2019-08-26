@@ -1,5 +1,5 @@
 {
-    "name" : "APP-PROD-1",
+    "name" : "APP-PROD-WEBSERVER",
     "mail" : {
         "host": "prod-mail-server"
     }

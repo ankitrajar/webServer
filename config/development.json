@@ -1,5 +1,5 @@
 {
-    "name" : "APP-DEV-1",
+    "name" : "APP-DEV-WEBSERVER",
     "mail" : {
         "host": "dev-mail-server"
     }

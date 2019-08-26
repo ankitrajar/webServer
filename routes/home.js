@@ -3,7 +3,7 @@ const router = express.Router();
 
 //GET Method : READ
 router.get('/', (req,res) => {
-    res.render('index',{title:"Express App", message: "Hello"});
+    res.send('You are in Root!');
 });
 
 module.exports= router;
