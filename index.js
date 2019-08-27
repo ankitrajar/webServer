@@ -7,8 +7,11 @@ const books = require('./routes/books');
 const home = require('./routes/home');
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
-
+mongoose.connect('mongodb://localhost/booksdB',{useNewUrlParser: true, useFindAndModify: false})
+        .then(() => log_startup('Connection to MongoDb Successfull!'))
+        .catch(err => log_startup('Connection failed! Error: ',err));
 /* Middlewares: 
    express.json : Parse JSON Object requested from the client
    express.urlencoded: Parse form data

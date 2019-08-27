@@ -1,6 +1,6 @@
 {
-  "name": "node_appl",
-  "version": "1.0.0",
+  "name": "webbie",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
