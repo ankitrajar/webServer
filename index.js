@@ -8,16 +8,20 @@ const home = require('./routes/home');
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const app = express();
 mongoose.connect('mongodb://localhost/booksdB',{useNewUrlParser: true, useFindAndModify: false})
         .then(() => log_startup('Connection to MongoDb Successfull!'))
         .catch(err => log_startup('Connection failed! Error: ',err));
-/* Middlewares: 
-   express.json : Parse JSON Object requested from the client
-   express.urlencoded: Parse form data
-   express.static: For importing static files such as css
-*/
-app.use(express.json());
+
+app.use(bodyParser.json());
+
+app.use(function (error, req, res, next) {
+    if(error instanceof SyntaxError){
+        return res.status(400).send('ERROR 400: Bad Request!!!');
+      } 
+    next();
+});
 app.use(express.urlencoded({extended: true}));
 //app.use(express.static('public'));
 app.use(helmet());
