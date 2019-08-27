@@ -51,7 +51,7 @@ router.put('/:id', async (req,res) => {
 
     book.name = req.body.name;
     book.author = req.body.author;
-    book.isPublished = req.body.isPublishedVal;
+    book.isPublished = req.body.isPublished;
     book.price = req.body.price;
 
     try {
